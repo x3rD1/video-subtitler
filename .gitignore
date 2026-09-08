@@ -1,0 +1,29 @@
+# Python virtual environment
+.venv/
+venv/
+env/
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Environment variables / secrets
+.env
+.env.*
+
+# Generated subtitle/video files
+*.srt
+*_subtitled.mp4
+
+# Local/test videos
+*.mp4
+*.mov
+*.avi
+*.mkv
+
+# IDE/editor files
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
