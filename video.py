@@ -6,13 +6,13 @@ import subprocess
 
 model = whisper.load_model("base")
 
-def transcribe_video(video_path: str):
+def transcribe_video(video_path: str) -> list[dict[str, Any]]:
     result: dict[str, Any] = model.transcribe(video_path)
     segments: list[dict[str, Any]] = result["segments"]
 
     return segments
 
-def create_srt(srt_path: Path, segments: list[dict[str, Any]]):
+def create_srt(srt_path: Path, segments: list[dict[str, Any]]) -> None:
     
     with open(srt_path, "w", encoding="utf-8") as file:
         for i, segment in enumerate(segments):
@@ -23,7 +23,7 @@ def create_srt(srt_path: Path, segments: list[dict[str, Any]]):
 
             file.write(subtitle + "\n\n")
 
-def burn_subtitles(video_path, srt_path, output_path):
+def burn_subtitles(video_path: str, srt_path: Path, output_path: Path) -> None:
     subprocess.run([
     "ffmpeg",
     "-i", video_path,
