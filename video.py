@@ -1,10 +1,13 @@
-import whisper
-from typing import Any
-from pathlib import Path
-from utils import format_timestamp
 import subprocess
+from pathlib import Path
+from typing import Any
+
+import whisper
+
+from utils import format_timestamp
 
 model = whisper.load_model("base")
+
 
 def transcribe_video(video_path: str) -> list[dict[str, Any]]:
     result: dict[str, Any] = model.transcribe(video_path)
@@ -12,8 +15,9 @@ def transcribe_video(video_path: str) -> list[dict[str, Any]]:
 
     return segments
 
+
 def create_srt(srt_path: Path, segments: list[dict[str, Any]]) -> None:
-    
+
     with open(srt_path, "w", encoding="utf-8") as file:
         for i, segment in enumerate(segments):
             start = format_timestamp(segment["start"])
@@ -23,9 +27,9 @@ def create_srt(srt_path: Path, segments: list[dict[str, Any]]) -> None:
 
             file.write(subtitle + "\n\n")
 
+
 def burn_subtitles(video_path: str, srt_path: Path, output_path: Path) -> None:
-    subprocess.run([
-    "ffmpeg",
-    "-i", video_path,
-    "-vf", f"subtitles={srt_path}",
-    output_path])
+    subprocess.run(
+        ["ffmpeg", "-i", video_path, "-vf", f"subtitles={srt_path}", output_path],
+        check=True,
+    )
