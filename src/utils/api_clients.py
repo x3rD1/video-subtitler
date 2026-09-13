@@ -1,24 +1,25 @@
 import logging
 from pathlib import Path
+from typing import cast
+
+from whisper import load_model
 
 from src.video_types import Segment
 
 logger = logging.getLogger(__name__)
 
+whisper_model = load_model("base")
+
 
 def transcribe_video(video_path: Path) -> dict:
-
     logger.info(f"--- Attempting API call for transcription on {video_path} ---")
 
-    mock_segments: list[Segment] = [
-        {"start": 0.0, "end": 1.5, "text": "Hello"},
-        {"start": 1.5, "end": 3.2, "text": "world,"},
-        {"start": 3.2, "end": 5.0, "text": "this is the test video."},
-    ]
+    result = whisper_model.transcribe(str(video_path))
+    segments = cast(list[Segment], result["segments"])
 
     return {
         "success": True,
-        "segments": mock_segments,
+        "segments": segments,
     }
 
 
