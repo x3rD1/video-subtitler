@@ -1,7 +1,7 @@
 import logging
 from pathlib import Path
 
-from video_types import Segment
+from src.video_types import Segment
 
 logger = logging.getLogger(__name__)
 
