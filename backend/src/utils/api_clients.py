@@ -4,7 +4,7 @@ from typing import cast
 
 from whisper import load_model
 
-from src.video_types import Segment
+from backend.src.video_types import Segment
 
 logger = logging.getLogger(__name__)
 

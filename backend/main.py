@@ -6,9 +6,9 @@ from pathlib import Path
 import aiofiles
 from fastapi import FastAPI, File, HTTPException, UploadFile
 
-from src.core.pipeline_core import process_video
-from src.utils.file_deletion import delete_old_files
-from src.utils.generate_video_path import generate_video_path
+from backend.src.core.pipeline_core import process_video
+from backend.src.utils.file_deletion import delete_old_files
+from backend.src.utils.generate_video_path import generate_video_path
 
 TEMP_DIR = Path("temp")
 TEMP_DIR.mkdir(parents=True, exist_ok=True)
