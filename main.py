@@ -1,0 +1,75 @@
+import asyncio
+import logging
+from contextlib import asynccontextmanager
+from pathlib import Path
+
+import aiofiles
+from fastapi import FastAPI, File, HTTPException, UploadFile
+
+from src.core.pipeline_core import process_video
+from src.utils.file_deletion import delete_old_files
+from src.utils.generate_video_path import generate_video_path
+
+TEMP_DIR = Path("temp")
+TEMP_DIR.mkdir(parents=True, exist_ok=True)
+
+
+async def periodic_cleanup_task(interval: int = 3600) -> None:
+    while True:
+        try:
+            delete_old_files(TEMP_DIR)
+        except Exception as e:  # noqa: BLE001
+            logger.error(f"Periodic cleanup encountered an error: {e}")
+
+        await asyncio.sleep(interval)
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    cleanup_task = asyncio.create_task(periodic_cleanup_task())
+    yield
+    cleanup_task.cancel()
+
+
+app = FastAPI(lifespan=lifespan)
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
+
+
+@app.get("/")
+async def read_root():
+    return {"message": "Hello World"}
+
+
+@app.post("/api/process-video")
+async def handle_process_video(video: UploadFile = File(...)):  # noqa: B008
+    try:
+        # Save the uploaded video to a temporary location
+        video_path = generate_video_path(TEMP_DIR, video)
+
+        async with aiofiles.open(video_path, "wb") as buffer:
+            while chunk := await video.read(1024 * 1024):
+                await buffer.write(chunk)
+
+        result = process_video(video_path)
+
+        if not result["success"]:
+            raise HTTPException(status_code=400, detail=result["error"])
+
+        output_video_path = Path(result["output_video"])
+
+        return {
+            "success": True,
+            "output_video": output_video_path.name,
+            "srt_file": result["srt_file"],
+        }
+
+    except Exception as e:  # noqa: BLE001
+        logger.error(f"Error processing video: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+
+if __name__ == "__main__":
+    import uvicorn
+
+    uvicorn.run(app, host="0.0.0.0", port=8000)
