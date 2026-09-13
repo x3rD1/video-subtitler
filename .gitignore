@@ -21,6 +21,9 @@ __pycache__/
 *.avi
 *.mkv
 
+# Local/generated folders
+temp/
+
 # IDE/editor files
 .vscode/
 .idea/
