@@ -2,9 +2,8 @@ import logging
 from pathlib import Path
 from typing import cast
 
+from src.video_types import Segment
 from whisper import load_model
-
-from backend.src.video_types import Segment
 
 logger = logging.getLogger(__name__)
 

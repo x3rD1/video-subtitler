@@ -1,13 +1,13 @@
 import logging
 from pathlib import Path
 
-from backend.src.utils.api_clients import transcribe_video
-from backend.src.utils.file_system_wrappers import (
+from src.utils.api_clients import transcribe_video
+from src.utils.file_system_wrappers import (
     burn_subtitles_with_ffmpeg,
     create_srt_path,
     write_srt_file,
 )
-from backend.src.utils.path_management import get_output_video_path
+from src.utils.path_management import get_output_video_path
 
 logger = logging.getLogger(__name__)
 

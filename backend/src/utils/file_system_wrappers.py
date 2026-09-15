@@ -2,8 +2,8 @@ import logging
 import subprocess
 from pathlib import Path
 
-from backend.src.utils.format_timestamp import format_timestamp
-from backend.src.video_types import Segment
+from src.utils.format_timestamp import format_timestamp
+from src.video_types import Segment
 
 logger = logging.getLogger(__name__)
 
