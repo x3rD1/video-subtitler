@@ -5,10 +5,10 @@ from pathlib import Path
 
 import aiofiles
 from fastapi import FastAPI, File, HTTPException, UploadFile
-
-from backend.src.core.pipeline_core import process_video
-from backend.src.utils.file_deletion import delete_old_files
-from backend.src.utils.generate_video_path import generate_video_path
+from fastapi.responses import FileResponse
+from src.core.pipeline_core import process_video
+from src.utils.file_deletion import delete_old_files
+from src.utils.generate_video_path import generate_video_path
 
 TEMP_DIR = Path("temp")
 TEMP_DIR.mkdir(parents=True, exist_ok=True)
@@ -58,11 +58,11 @@ async def handle_process_video(video: UploadFile = File(...)):  # noqa: B008
 
         output_video_path = Path(result["output_video"])
 
-        return {
-            "success": True,
-            "output_video": output_video_path.name,
-            "srt_file": result["srt_file"],
-        }
+        return FileResponse(
+            path=output_video_path,
+            media_type=video.content_type,
+            filename=output_video_path.name,
+        )
 
     except Exception as e:  # noqa: BLE001
         logger.error(f"Error processing video: {e}")
