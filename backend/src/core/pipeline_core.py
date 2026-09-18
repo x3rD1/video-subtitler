@@ -12,10 +12,10 @@ from src.utils.path_management import get_output_video_path
 logger = logging.getLogger(__name__)
 
 
-def process_video(video_path: Path) -> dict:
+def process_video(video_path: Path, target_language: str) -> dict:
     logger.info(f"Starting pipeline for: {video_path}")
 
-    transcript_result = transcribe_video(video_path)
+    transcript_result = transcribe_video(video_path, target_language)
 
     if not transcript_result.get("success"):
         error_msg = transcript_result.get(
