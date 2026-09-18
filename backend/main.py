@@ -2,9 +2,11 @@ import asyncio
 import logging
 from contextlib import asynccontextmanager
 from pathlib import Path
+from typing import Annotated
 
 import aiofiles
-from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi import FastAPI, File, Form, HTTPException, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from src.core.pipeline_core import process_video
 from src.utils.file_deletion import delete_old_files
@@ -32,17 +34,23 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
 
-@app.get("/")
-async def read_root():
-    return {"message": "Hello World"}
-
-
 @app.post("/api/process-video")
-async def handle_process_video(video: UploadFile = File(...)):  # noqa: B008
+async def handle_process_video(
+    video: Annotated[UploadFile, File(...)],
+    target_language: Annotated[str, Form()] = "en",
+):
     try:
         # Save the uploaded video to a temporary location
         video_path = generate_video_path(TEMP_DIR, video)
@@ -51,7 +59,7 @@ async def handle_process_video(video: UploadFile = File(...)):  # noqa: B008
             while chunk := await video.read(1024 * 1024):
                 await buffer.write(chunk)
 
-        result = process_video(video_path)
+        result = process_video(video_path, target_language)
 
         if not result["success"]:
             raise HTTPException(status_code=400, detail=result["error"])
